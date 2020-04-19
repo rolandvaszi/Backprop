@@ -1,0 +1,37 @@
+function BP_Tangens(TanitoHalmaz,d_TanitoHalmaz,TanitoHalmaz_Teszt,d_TanitoHalmaz_Teszt,w0,u,t,akt,akt_par)
+    a = akt1(1);
+    w1 = w0{1};
+    w2 = w0{2};
+    u1 = u{1};
+    u2 = u{2};
+    tang = @(s, a, teta) (1-exp(-a*(s+teta))) ./ (1+exp(-a*(s+teta)));
+    tangderiv = @(s,a,teta) ((2*a)*exp(a*(s+teta)))./(exp(a*s)+exp(a*teta)).^2;
+    for i = 1:t
+        ETH(i) = 0;
+        for j = 1:size(TanitoHalmaz)
+            x1 = TanitoHalmaz(j,:)';
+            s1 = w1'*x1;
+            y1=tang(s1, a, 0);
+            x2 = y1;
+            s2 = w2'*x2;
+            y2=tang(s2, a, 0);
+            delta_2 = d_TanitoHalmaz(j,:)'-y2;
+            w2=w2+u2*x2*(delta_2.*tangderiv(s2,a,0))';
+            [nw, mw] = size(w2);
+            delta_1=w2(1:nw,:)*(delta_2.*tangderiv(s2,a,0));
+            w1=w1+u1*x1*(delta_1.*tangderiv(s1,a,0))'; 
+            ETH(i)=ETH(i)+delta_2'*delta_2;
+        end
+        ETH_Teszt(i) = 0;
+        for j = 1:size(TanitoHalmaz_Teszt)
+            x1 = TanitoHalmaz_Teszt(j,:)';
+            s1 = w1'*x1;
+            y1=tang(s1, a, 0);
+            x2 = y1;
+            s2 = w2'*x2;
+            y2 = tang(s2, a, 0);
+            delta_1=d_TanitoHalmaz_Teszt(j,:)'-y2; 
+            ETH_Teszt(i)=ETH_Teszt(i)+delta_1'*delta_1;
+        end
+    end
+end
